@@ -1,2 +1,3 @@
 # Blog
- Blog website with Node + EJS
+## Blog website.
+## Made with Node + EJS.

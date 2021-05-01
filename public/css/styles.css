@@ -1,6 +1,9 @@
+body {
+  font-size: min(3vw, 28px);
+}
+
 .container-fluid {
-  padding-top: 70px;
-  padding-bottom: 70px;
+  padding: 70px;
 }
 .navbar {
   padding-top: 15px;
@@ -24,13 +27,12 @@
   width: 100%;
   height: 60px;
   background-color: #1b2021;
-  font-size: min(4vw, 20px);
+  font-size: min(3vw, 16px);
   color: #eac8af;
-  padding: 15px 0;
+  padding: 20px 0;
 }
 
 /* #d8ac9c
 #1b2021
 #5f939a
 #eac8af */
-
