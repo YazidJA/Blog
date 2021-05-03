@@ -1,7 +1,12 @@
 <%- include("partials/header") -%>
 <body>
   <div class="container-fluid">
-    <%-htmlPosts%>
+    <h1>Home</h1>
+    <p><%=homeContent%></p>
+  </div>
+  <div class="container-fluid">
+    <h1>Posts</h1>
+    <%-map%>
   </div>
 </body>
 <%- include("partials/footer") -%>

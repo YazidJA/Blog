@@ -3,8 +3,9 @@ body {
 }
 
 .container-fluid {
-  padding: 70px;
+  padding: 5vh 10vw 0 10vw;
 }
+
 .navbar {
   padding-top: 15px;
   padding-bottom: 15px;

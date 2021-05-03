@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const _ = require("lodash");
 
 const app = express();
 
@@ -9,64 +10,92 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 const date = require(__dirname + "/date.js");
+global.year = date.year;
 
+const homeContent =
+  "This is the home page content. This is the home page content. This is the home page content. This is the home page content. This is the home page content. This is the home page content. This is the home page content. This is the home page content. This is the home page content.";
 const aboutContent =
-  "Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.";
+  "This is the about page content. This is the about page content. This is the about page content. This is the about page content. This is the about page content. This is the about page content. This is the about page content. This is the about page content. This is the about page content.";
 const contactContent =
-  "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
-const year = date.year;
+  "This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content.";
 
 const posts = [
   {
-    title: "Home",
+    title: "Long Post",
     body:
-      "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.",
+      "This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post.",
+  },
+  {
+    title: "Short Post",
+    body: "This is a very short post.",
   },
 ];
-let htmlPosts = posts
-  .map((post) => `<h1>${post.title}</h1><p>${post.body}</p>`)
-  .join("");
-
-// Post
-app.post("/compose", function (req, res) {
-  const post = {
-    title: req.body.title,
-    body: req.body.body,
-  };
-  posts.push(post);
-  htmlPosts = posts
-    .map((post) => `<h1>${post.title}</h1><p>${post.body}</p>`)
-    .join("");
-  res.redirect("/");
-});
 
 app.get("/", function (req, res) {
+  const truncatePost = (str, title) => {
+    if (str.length > 100) {
+      return (
+        str.slice(0, 100) +
+        `<a href="/posts/${_.lowerCase(title)}"> ...read more</a>`
+      );
+    } else return str;
+  };
+
+  const map = posts
+    .map(
+      (post) =>
+        `<h2><a href=\"/posts/${_.lowerCase(post.title)}\">${
+          post.title
+        }</a></h2><p>${truncatePost(post.body, post.title)}
+        </p>`
+    )
+    .join("");
+
   res.render(__dirname + "/views/home.ejs", {
-    year,
-    htmlPosts,
+    homeContent,
+    map,
   });
 });
 
 app.get("/about", function (req, res) {
   res.render(__dirname + "/views/about.ejs", {
-    year,
     aboutContent,
   });
 });
 
 app.get("/contact", function (req, res) {
   res.render(__dirname + "/views/contact.ejs", {
-    year,
     contactContent,
   });
 });
 
 app.get("/compose", function (req, res) {
-  res.render(__dirname + "/views/compose.ejs", {
-    year,
+  res.render(__dirname + "/views/compose.ejs", {});
+});
+
+app.post("/compose", function (req, res) {
+  const post = {
+    title: req.body.title,
+    body: req.body.body,
+  };
+  posts.push(post);
+  res.redirect("/");
+});
+
+app.get("/posts/:title", function (req, res) {
+  const query = req.params.title;
+  let post = {};
+  for (let i = 0; i < posts.length; i++) {
+    if (_.lowerCase(posts[i].title) === _.lowerCase(query)) {
+      post = posts[i];
+    }
+  }
+
+  res.render(__dirname + "/views/post.ejs", {
+    post,
   });
 });
 
 app.listen(3000, function () {
-  console.log("Server started on port 3000");
+  console.log("Server started on http://localhost:3000");
 });
