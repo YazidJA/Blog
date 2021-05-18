@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const _ = require("lodash");
+const mongoose = require("mongoose");
 
 const app = express();
 
@@ -19,41 +20,50 @@ const aboutContent =
 const contactContent =
   "This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content. This is the contact page content.";
 
-const posts = [
+/* Connect to DB */
+mongoose.connect(
+  "mongodb+srv://dbUser:eCNQiUVJWcsnwBPj@cluster0.c3qxo.mongodb.net/blogDb",
   {
-    title: "Long Post",
-    body:
-      "This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post. This is a very long post.",
-  },
-  {
-    title: "Short Post",
-    body: "This is a very short post.",
-  },
-];
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
 
+/* Create Collection Schema */
+const postSchema = new mongoose.Schema({
+  title: String,
+  body: String,
+});
+const Post = mongoose.model("Post", postSchema);
+
+// Output
 app.get("/", function (req, res) {
-  const truncatePost = (str, title) => {
+  const truncatePost = (str, id) => {
     if (str.length > 100) {
-      return (
-        str.slice(0, 100) +
-        `<a href="/posts/${_.lowerCase(title)}"> ...read more</a>`
-      );
+      return str.slice(0, 100) + `<a href="/posts/${id}"> ...read more</a>`;
     } else return str;
   };
 
-  const map = posts
-    .map(
-      (post) =>
-        `<h2><a href=\"/posts/${_.lowerCase(post.title)}\">${
-          post.title
-        }</a></h2><p>${truncatePost(post.body, post.title)}
-        </p>`
-    )
-    .join("");
+  Post.find(function (err, posts) {
+    if (err) {
+      console.log(err);
+    } else {
+      /* Show Output */
+      const map = posts
+        .map(
+          (post) =>
+            `<h2><a href=\"/posts/${post._id}\">${
+              post.title
+            }</a></h2><p>${truncatePost(post.body, post._id)}
+    </p>`
+        )
+        .join("");
 
-  res.render(__dirname + "/views/home.ejs", {
-    homeContent,
-    map,
+      res.render(__dirname + "/views/home.ejs", {
+        homeContent,
+        map,
+      });
+    }
   });
 });
 
@@ -74,25 +84,24 @@ app.get("/compose", function (req, res) {
 });
 
 app.post("/compose", function (req, res) {
-  const post = {
+  const post = new Post({
     title: req.body.title,
     body: req.body.body,
-  };
-  posts.push(post);
-  res.redirect("/");
+  });
+  post.save(function (err) {
+    if (!err) {
+      res.redirect("/");
+    }
+  });
 });
 
-app.get("/posts/:title", function (req, res) {
-  const query = req.params.title;
-  let post = {};
-  for (let i = 0; i < posts.length; i++) {
-    if (_.lowerCase(posts[i].title) === _.lowerCase(query)) {
-      post = posts[i];
-    }
-  }
+app.get("/posts/:id", function (req, res) {
+  const query = req.params.id;
 
-  res.render(__dirname + "/views/post.ejs", {
-    post,
+  Post.findOne({ _id: query }, function (err, post) {
+    res.render(__dirname + "/views/post.ejs", {
+      post,
+    });
   });
 });
 
