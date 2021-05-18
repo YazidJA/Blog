@@ -105,6 +105,7 @@ app.get("/posts/:id", function (req, res) {
   });
 });
 
-app.listen(3000, function () {
-  console.log("Server started on http://localhost:3000");
+//Mount Page
+app.listen(process.env.PORT || 3000, function () {
+  console.log(" -- Server is running on localhost:3000 --");
 });
