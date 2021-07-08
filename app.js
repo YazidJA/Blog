@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const _ = require("lodash");
@@ -22,7 +23,7 @@ const contactContent =
 
 /* Connect to DB */
 mongoose.connect(
-  "mongodb+srv://dbUser:eCNQiUVJWcsnwBPj@cluster0.c3qxo.mongodb.net/blogDb",
+  process.env.DATABASE,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
